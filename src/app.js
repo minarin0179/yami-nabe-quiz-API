@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { readJSONLFile } from './readJSONL.js';
+import {generate } from './generate.js';
 
 const filePath = 'train_questions.json';
 
@@ -12,7 +13,7 @@ const questions = await readJSONLFile(filePath);
 app.use(bodyParser.json());
 
 // POSTリクエストを受け取るエンドポイント
-app.get('/api', (req, res) => {
+app.get('/api', async (req, res) => {
     // リクエストからデータを取得
     const { size } = req.body;
 
@@ -25,9 +26,12 @@ app.get('/api', (req, res) => {
         }
     });
 
+    const question = await generate(ingredients.map((ingredient) =>ingredient.question))
+    //TODO generateに失敗したらエラーコードを返す
+
     // レスポンスデータを作成
     const responseData = {
-        question: "hoge",
+        question: question || "hoge",
         ingredients: ingredients,
     };
 

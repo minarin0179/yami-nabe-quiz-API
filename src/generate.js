@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const generate = (async (questions) => {
+export const generate = (async (questions) => {
     //localhostの8000ポートにリクエストを投げる
-    const reqData = JSON.stringify({
+    const postData = JSON.stringify({
         questions: questions
     });
     const reqConfig = {
@@ -14,7 +14,12 @@ const generate = (async (questions) => {
         data: postData,  // 送信するデータ
     }
 
-    const response = await axios(reqConfig);
-    
-    return response.data;
+    try{
+        const response = await axios(reqConfig);
+        return response.data;
+    }
+    catch(error){
+        console.log(error);
+        return error;
+    }
 })
