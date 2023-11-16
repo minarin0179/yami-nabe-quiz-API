@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { readJSONLFile } from './readJSONL.js';
-import {generate } from './generate.js';
+import { generate } from './generate.js';
 
 const filePath = 'train_questions.json';
 
@@ -20,18 +20,21 @@ app.get('/api', async (req, res) => {
     const randomNumbers = [...Array(size)].map(() => Math.floor(Math.random() * questions.length));
     const ingredients = randomNumbers.map((randomNumber) => {
         const selected = questions[randomNumber];
+        if (!('question' in selected) || !('answer_entity' in selected)) throw new Error('Invalid data');
+        const { question, answer_entity } = selected;
+        if (typeof question !== 'string' || typeof answer_entity !== 'string') throw new Error('Invalid type');
         return {
-            question: selected.question,
-            answer: selected.answer_entity,
+            question: question,
+            answer: answer_entity,
         }
-    });
 
-    const question = await generate(ingredients.map((ingredient) =>ingredient.question))
+    });
+    const generator = await generate(ingredients.map(({ question }) => question))
     //TODO generateに失敗したらエラーコードを返す
 
     // レスポンスデータを作成
     const responseData = {
-        question: question || "hoge",
+        question: generator.result,
         ingredients: ingredients,
     };
 

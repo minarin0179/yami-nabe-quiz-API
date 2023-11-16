@@ -1,9 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
 
-export const readJSONLFile = ((filePath) => {
+export const readJSONLFile = (filePath: string): Promise<object[]> => {
     return new Promise((resolve, reject) => {
-        const dataArray = [];
+        const dataArray: object[] = [];
 
         const readStream = readline.createInterface({
             input: fs.createReadStream(filePath),
@@ -15,7 +15,7 @@ export const readJSONLFile = ((filePath) => {
                 const jsonObject = JSON.parse(line);
                 dataArray.push(jsonObject);
             } catch (error) {
-                reject(`JSONパースエラー: ${error.message}`);
+                reject(error);
             }
         });
 
@@ -24,7 +24,7 @@ export const readJSONLFile = ((filePath) => {
         });
 
         readStream.on('error', (error) => {
-            reject(`ファイル読み込みエラー: ${error.message}`);
+            reject(error);
         });
     });
-});
+};

@@ -2,5 +2,5 @@ GET  http://153.126.193.216:3000/api
 Content-Type: application/json
 
 {
-    "size" : 2
+    "size" : 4
 }
