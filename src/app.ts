@@ -2,6 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { readJSONLFile } from './readJSONL.js';
 import { generate } from './generate.js';
+import fs from 'fs';
+import * as https from 'https';
+import cors from 'cors';
 
 const filePath = 'train_questions.json';
 
@@ -9,13 +12,28 @@ const app = express();
 const port = 3000;
 const questions = await readJSONLFile(filePath);
 
+const privateKey = fs.readFileSync('privatekey.pem', 'utf8');
+const certificate = fs.readFileSync('cert.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+const server = https.createServer(credentials, app);
+
+// CORSを許可する
+app.use(cors({
+    origin:'https://minarin0179.github.io'
+}));
+
 // JSONのリクエストを解析するためのミドルウェア
 app.use(bodyParser.json());
 
 // POSTリクエストを受け取るエンドポイント
 app.get('/api', async (req, res) => {
-    // リクエストからデータを取得
-    const { size } = req.body;
+    // リクエストデータを取得
+
+    let size = 4;
+    if (req.query.size && typeof req.query.size === 'string') size = parseInt(req.query.size);
+    console.log(req.query);
+    console.log(size);
 
     const randomNumbers = [...Array(size)].map(() => Math.floor(Math.random() * questions.length));
     const ingredients = randomNumbers.map((randomNumber) => {
@@ -43,6 +61,6 @@ app.get('/api', async (req, res) => {
 });
 
 // サーバーを起動
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
